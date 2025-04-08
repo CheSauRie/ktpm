@@ -1,0 +1,19 @@
+{
+  "name": "data-processor",
+  "version": "1.0.0",
+  "description": "Data processing service for handling Kafka messages and Cassandra operations",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
+  "dependencies": {
+    "kafkajs": "^2.2.4",
+    "cassandra-driver": "^4.7.0",
+    "winston": "^3.11.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+} 

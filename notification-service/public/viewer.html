@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-time Data Viewer</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .value-display {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+        }
+        .timestamp {
+            color: #666;
+            font-size: 14px;
+        }
+        .status {
+            margin-top: 10px;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        .connected {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .disconnected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <h1>Real-time Data Viewer</h1>
+    <div class="container">
+        <div>
+            <label for="keyInput">Key to monitor:</label>
+            <input type="text" id="keyInput" placeholder="Enter key">
+            <button onclick="subscribe()">Subscribe</button>
+            <button onclick="unsubscribe()">Unsubscribe</button>
+        </div>
+        <div id="status" class="status disconnected">Disconnected</div>
+        <div id="valueDisplay" class="value-display">No data</div>
+        <div id="timestamp" class="timestamp">Last update: Never</div>
+    </div>
+
+    <script>
+        const socket = io();
+        let currentKey = null;
+
+        socket.on('connect', () => {
+            document.getElementById('status').className = 'status connected';
+            document.getElementById('status').textContent = 'Connected';
+        });
+
+        socket.on('disconnect', () => {
+            document.getElementById('status').className = 'status disconnected';
+            document.getElementById('status').textContent = 'Disconnected';
+        });
+
+        socket.on('update', (data) => {
+            document.getElementById('valueDisplay').textContent = data.value;
+            document.getElementById('timestamp').textContent = 
+                `Last update: ${new Date(data.timestamp).toLocaleString()}`;
+        });
+
+        function subscribe() {
+            const key = document.getElementById('keyInput').value;
+            if (key && key !== currentKey) {
+                if (currentKey) {
+                    socket.emit('unsubscribe', currentKey);
+                }
+                socket.emit('subscribe', key);
+                currentKey = key;
+            }
+        }
+
+        function unsubscribe() {
+            if (currentKey) {
+                socket.emit('unsubscribe', currentKey);
+                currentKey = null;
+                document.getElementById('valueDisplay').textContent = 'No data';
+                document.getElementById('timestamp').textContent = 'Last update: Never';
+            }
+        }
+    </script>
+</body>
+</html> 
